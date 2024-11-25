@@ -7,7 +7,7 @@ This tool is designed to measure CPU performance and memory access patterns in m
 
 ## Features
 
-- Cross-platform support (Solaris, AIX, macOS)
+- Cross-platform support (Linux, Solaris, AIX, macOS)
 - Thread affinity optimization where available
 - Configurable number of threads
 - Memory access pattern analysis
@@ -16,37 +16,41 @@ This tool is designed to measure CPU performance and memory access patterns in m
 
 ## System Requirements
 
-- POSIX-compliant operating system (Solaris, AIX, macOS)
+- POSIX-compliant operating system (Linux, Solaris, AIX, macOS)
 - C compiler with C99 support
 - pthread library
 - Math library
 
 ## Building
 
-To compile the program, use:
-
+**Using Make**:
 ```bash
-gcc -o cpu-aff cpu-aff.c -lpthread -lm
+make        # build the project
+make clean  # remove build files
+make help   # show help and available commands
 ```
 
-On macOS, you might need to specify additional flags:
-
-```bash
-gcc -o cpu-aff cpu-aff.c -lpthread -lm -D__APPLE__
-```
+The Makefile automatically detects your operating system and uses appropriate compiler flags.
 
 ## Usage
 
-Run the program with the number of threads as an argument:
-
+Run with predefined thread counts:
 ```bash
-./cpu-aff <num_threads>
+make run1   # run with 1 thread
+make run2   # run with 2 threads
+make run4   # run with 4 threads
+make run8   # run with 8 threads
+make run16  # run with 16 threads
 ```
 
-For example, to run with 8 threads:
-
+Run with custom thread count:
 ```bash
-./cpu-aff 8
+make runN THREADS=12  # run with 12 threads
+```
+
+Show available run options:
+```bash
+make run
 ```
 
 ## Output Example
@@ -84,6 +88,10 @@ Measures memory access performance when reading data in a non-sequential pattern
 
 ## Platform-Specific Notes
 
+### Linux
+- Full CPU affinity support through sched_setaffinity()
+- Detailed CPU topology information
+
 ### macOS
 - Does not support hard CPU affinity
 - Uses QoS (Quality of Service) for thread optimization
@@ -95,11 +103,11 @@ Measures memory access performance when reading data in a non-sequential pattern
 
 ### AIX
 - Uses bindprocessor() for thread-to-CPU binding
+- Uses xlc compiler
 
 ## Configuration
 
 The following constants can be modified in the source code:
-
 ```c
 #define MIN_PRIME 300000  // Base number for prime calculations
 #define MIN_LOOP 300      // Base number for memory access loops
@@ -116,4 +124,32 @@ The following constants can be modified in the source code:
 
 ## License
 
-This software is provided "as is" without any warranty. You are free to use, modify, and distribute it as needed.
+BSD 3-Clause License
+
+Copyright (c) 2024 
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

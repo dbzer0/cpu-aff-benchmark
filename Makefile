@@ -1,13 +1,17 @@
+# Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Wextra -O2
+CFLAGS = -Wall -Wextra -O2 -std=c99
 LDFLAGS = -lpthread -lm
 
-# Определение операционной системы
+# Detect operating system
 UNAME_S := $(shell uname -s)
 
-# Специфичные флаги для разных ОС
+# OS-specific settings
 ifeq ($(UNAME_S),Darwin)
     CFLAGS += -D__APPLE__
+endif
+ifeq ($(UNAME_S),Linux)
+    CFLAGS += -D_LINUX
 endif
 ifeq ($(UNAME_S),SunOS)
     CFLAGS += -DSOLARIS
@@ -17,25 +21,23 @@ ifeq ($(UNAME_S),AIX)
     CC = xlc
 endif
 
-# Цели сборки
+# Build targets
 TARGET = cpu-aff
 SRCS = cpu-aff.c
 OBJS = $(SRCS:.c=.o)
 
-# Правила сборки
+# Default target
 all: $(TARGET)
 
+# Linking
 $(TARGET): $(OBJS)
 	$(CC) $(OBJS) -o $(TARGET) $(LDFLAGS)
 
+# Compilation
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Очистка
-clean:
-	rm -f $(TARGET) $(OBJS)
-
-# Запуск с разным количеством потоков
+# Run targets for different thread counts
 run1: $(TARGET)
 	./$(TARGET) 1
 
@@ -48,22 +50,47 @@ run4: $(TARGET)
 run8: $(TARGET)
 	./$(TARGET) 8
 
-run: $(TARGET)
-	@echo "Usage examples:"
-	@echo "  make run1  - run with 1 thread"
-	@echo "  make run2  - run with 2 threads"
-	@echo "  make run4  - run with 4 threads"
-	@echo "  make run8  - run with 8 threads"
+run16: $(TARGET)
+	./$(TARGET) 16
 
-# Помощь
+# Run with custom thread count (usage: make runN THREADS=N)
+runN: $(TARGET)
+	./$(TARGET) $(THREADS)
+
+# Show run options
+run:
+	@echo "Available run commands:"
+	@echo "  make run1    - run with 1 thread"
+	@echo "  make run2    - run with 2 threads"
+	@echo "  make run4    - run with 4 threads"
+	@echo "  make run8    - run with 8 threads"
+	@echo "  make run16   - run with 16 threads"
+	@echo "  make runN THREADS=N - run with N threads"
+
+# Clean build artifacts
+clean:
+	rm -f $(TARGET) $(OBJS)
+
+# Show help
 help:
-	@echo "Available targets:"
-	@echo "  make       - build the project"
-	@echo "  make clean - remove build files"
-	@echo "  make run   - show run options"
-	@echo "  make run1  - run with 1 thread"
-	@echo "  make run2  - run with 2 threads"
-	@echo "  make run4  - run with 4 threads"
-	@echo "  make run8  - run with 8 threads"
+	@echo "CPU Affinity and Memory Access Performance Benchmark"
+	@echo ""
+	@echo "Build targets:"
+	@echo "  make        - build the project"
+	@echo "  make clean  - remove build files"
+	@echo ""
+	@echo "Run targets:"
+	@echo "  make run    - show available run options"
+	@echo "  make run1   - run with 1 thread"
+	@echo "  make run2   - run with 2 threads"
+	@echo "  make run4   - run with 4 threads"
+	@echo "  make run8   - run with 8 threads"
+	@echo "  make run16  - run with 16 threads"
+	@echo "  make runN THREADS=N - run with custom number of threads"
+	@echo ""
+	@echo "Example:"
+	@echo "  make && make run8   - build and run with 8 threads"
+	@echo "  make runN THREADS=12 - run with 12 threads"
 
-.PHONY: all clean run run1 run2 run4 run8 help
+# Mark targets that don't create files
+.PHONY: all clean run run1 run2 run4 run8 run16 runN help
