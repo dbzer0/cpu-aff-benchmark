@@ -149,6 +149,7 @@ static unsigned long non_seq_mem_read(const unsigned long primes) {
 }
 
 // CPU test functions
+#if TEST_RANDOM_NUMBERS
 static void *rnd(const unsigned long primes) {
     unsigned rand_state = 0;
     
@@ -157,6 +158,7 @@ static void *rnd(const unsigned long primes) {
     }
     return NULL;
 }
+#endif
 
 static unsigned long do_kotiks(const unsigned long primes) {
     #ifdef __APPLE__
@@ -191,6 +193,7 @@ static void bind_thread(int cpu_id) {
         HANDLE_ERROR("bindprocessor failed");
     }
     #elif defined(__APPLE__)
+    (void)cpu_id;  // Избегаем предупреждения о неиспользуемом параметре
     optimize_thread_performance();
     #endif
 
